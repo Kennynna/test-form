@@ -44,6 +44,7 @@
           <el-input
             :class="{ 'is-error': account.errors?.login }"
             v-model="account.login"
+            @input="validateFieldOnInput(account, 'login')"
             @blur="onLoginBlur(account)"
             maxlength="100"
             placeholder="Логин"
@@ -55,6 +56,7 @@
           <el-input
             :class="{ 'is-error': account.errors?.password }"
             v-model="account.password"
+            @input="validateFieldOnInput(account, 'password')"
             @blur="onPasswordBlur(account)"
             maxlength="100"
             placeholder="Пароль"
@@ -95,6 +97,7 @@ watch(accounts, (val) => {
 }, { immediate: true });
 
 const validationTimeouts = ref<Record<string, number>>({});
+const inputValidationTimeouts = ref<Record<string, number>>({});
 
 function addAccount() {
   store.addAccount();
@@ -135,6 +138,26 @@ function validateAccount(account: Account) {
       errors
     });
   }, 500);
+}
+
+function validateFieldOnInput(account: Account, field: 'login' | 'password') {
+  // Clear previous timeout
+  if (inputValidationTimeouts.value[account.id + field]) {
+    clearTimeout(inputValidationTimeouts.value[account.id + field]);
+  }
+  inputValidationTimeouts.value[account.id + field] = setTimeout(() => {
+    if (field === 'login') {
+      const error = !account.login || account.login.length > 100;
+      store.updateAccount(account.id, {
+        errors: { ...account.errors, login: error }
+      });
+    } else if (field === 'password' && account.type === 'Локальная') {
+      const error = !account.password || account.password.length > 100;
+      store.updateAccount(account.id, {
+        errors: { ...account.errors, password: error }
+      });
+    }
+  }, 400);
 }
 
 function onLabelsBlur(account: Account) {
