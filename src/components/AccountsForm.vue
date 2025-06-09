@@ -4,6 +4,13 @@
       <h2>Учетные записи</h2>
       <el-button @click="addAccount" type="primary" circle :icon="Plus" />
     </div>
+    <el-alert
+      type="info"
+      :closable="false"
+      show-icon
+      style="margin: 8px 0 16px 0; padding: 8px 16px;"
+      description="Для указания нескольких меток для одной пары логин/пароль используйте разделитель ;"
+    />
 
     <div class="accounts-table">
       <div class="accounts-header">
@@ -41,6 +48,7 @@
             maxlength="100"
             placeholder="Логин"
             clearable
+            :title="account.errors?.login ? 'Это поле обязательно для заполнения' : ''"
           />
         </div>
         <div class="input-wrapper" v-if="account.type === 'Локальная'">
@@ -52,6 +60,7 @@
             placeholder="Пароль"
             show-password
             clearable
+            :title="account.errors?.password ? 'Это поле обязательно для заполнения' : ''"
           />
         </div>
         <span v-else></span>
